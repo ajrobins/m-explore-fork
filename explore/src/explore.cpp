@@ -58,6 +58,10 @@ Explore::Explore()
   , prev_distance_(0)
   , last_markers_count_(0)
 {
+  pause_service_ = relative_nh_.advertiseService("pause_exploration", &Explore::pauseExploration, this);
+  continue_service_ = relative_nh_.advertiseService("continue_exploration", &Explore::continueExploration, this);
+  exploration_paused_ = true;
+
   double timeout;
   double min_frontier_size;
   private_nh_.param("planner_frequency", planner_frequency_, 1.0);
@@ -90,6 +94,22 @@ Explore::Explore()
 Explore::~Explore()
 {
   stop();
+}
+
+bool Explore::pauseExploration(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+  exploration_paused_ = true;
+  // exploring_timer_.stop();
+  ROS_DEBUG("Exploration paused.");
+  return true;
+}
+
+bool Explore::continueExploration(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+  exploration_paused_ = false;
+  exploring_timer_.start();
+  ROS_DEBUG("Exploration resumed.");
+  return true;
 }
 
 void Explore::visualizeFrontiers(
@@ -178,6 +198,9 @@ void Explore::visualizeFrontiers(
 
 void Explore::makePlan()
 {
+  if (exploration_paused_ == true) {
+    return;
+  }
   // find frontiers
   auto pose = costmap_client_.getRobotPose();
   // get frontiers sorted according to cost

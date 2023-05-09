@@ -51,6 +51,9 @@
 #include <explore/costmap_client.h>
 #include <explore/frontier_search.h>
 
+#include <std_srvs/Empty.h>
+
+
 namespace explore
 {
 /**
@@ -67,11 +70,19 @@ public:
   void start();
   void stop();
 
+  bool pauseExploration(std_srvs::Empty::Request& request, 
+                        std_srvs::Empty::Response& response);
+
+  bool continueExploration(std_srvs::Empty::Request& request, 
+                            std_srvs::Empty::Response& response);
+
 private:
   /**
    * @brief  Make a global plan
    */
   void makePlan();
+
+
 
   /**
    * @brief  Publish a frontiers as markers
@@ -85,10 +96,18 @@ private:
 
   bool goalOnBlacklist(const geometry_msgs::Point& goal);
 
+ 
+
+
+
   ros::NodeHandle private_nh_;
   ros::NodeHandle relative_nh_;
   ros::Publisher marker_array_publisher_;
   tf::TransformListener tf_listener_;
+
+  ros::ServiceServer pause_service_;
+  ros::ServiceServer continue_service_;
+  bool exploration_paused_;
 
   Costmap2DClient costmap_client_;
   actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>
