@@ -114,9 +114,7 @@ Costmap2DClient::Costmap2DClient(ros::NodeHandle& param_nh,
 
 void Costmap2DClient::updateFullMap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
-  if (exploration_paused_ == true) {
-    return;
-  }
+ 
   global_frame_ = msg->header.frame_id;
 
   unsigned int size_in_cells_x = msg->info.width;
@@ -148,9 +146,7 @@ void Costmap2DClient::updateFullMap(const nav_msgs::OccupancyGrid::ConstPtr& msg
 void Costmap2DClient::updatePartialMap(
     const map_msgs::OccupancyGridUpdate::ConstPtr& msg)
 {
-  if (exploration_paused_ == true) {
-    return;
-  }
+  
   ROS_DEBUG("received partial map update");
   global_frame_ = msg->header.frame_id;
 
